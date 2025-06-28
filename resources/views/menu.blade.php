@@ -93,7 +93,7 @@
         <div class="header-top">
             <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop" alt="Restaurant Banner" class="header-banner">
             <div class="store-card-wrapper">
-                 <div class="store-card">
+                <div class="store-card">
                     <h1>PMO (Pemesanan Mandiri Otanpaberdiri)</h1>
                     <span class="store-status">BUKA</span>
                     <div class="table-number">Nomor Meja: {{ $tableNumber }}</div>
@@ -246,29 +246,53 @@
 
             scrollTopBtn.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
-            // Logika untuk navigasi kategori aktif saat scroll
+            // Logika untuk navigasi kategori aktif
             const navLinks = document.querySelectorAll('.category-nav-item');
             const sections = document.querySelectorAll('.menu-section');
+            
             if (sections.length > 0) {
                 const headerHeight = 70; // Tinggi header setelah menyusut
+
+                // Mengatur active class saat klik
                 navLinks.forEach(link => {
                     link.addEventListener('click', function(e) {
                         e.preventDefault();
+                        
+                        // Hapus kelas 'active' dari semua link
+                        navLinks.forEach(item => item.classList.remove('active'));
+                        // Tambahkan kelas 'active' ke link yang diklik
+                        this.classList.add('active');
+
                         const targetId = this.getAttribute('href');
                         const targetElement = document.querySelector(targetId);
                         const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight;
                         window.scrollTo({ top: targetPosition, behavior: 'smooth' });
                     });
                 });
+
+                // Intersection Observer tetap berfungsi untuk perubahan saat scroll alami
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
                             const id = entry.target.id;
-                            navLinks.forEach(link => { link.classList.toggle('active', link.hash === `#${id}`); });
+                            navLinks.forEach(link => { 
+                                // Hanya set active jika link yang sesuai dengan section yang terpotong
+                                if (link.hash === `#${id}`) {
+                                    navLinks.forEach(item => item.classList.remove('active')); // Hapus dari semua
+                                    link.classList.add('active'); // Tambahkan ke yang aktif
+                                }
+                            });
                         }
                     });
-                }, { rootMargin: `-80px 0px -55% 0px` });
+                }, { rootMargin: `-80px 0px -55% 0px` }); // Sesuaikan rootMargin jika perlu
+
                 sections.forEach(section => { observer.observe(section); });
+
+                // Inisialisasi: Aktifkan kategori pertama saat halaman dimuat
+                // Pastikan ada setidaknya satu link navigasi
+                if (navLinks.length > 0) {
+                    navLinks[0].classList.add('active');
+                }
             }
         });
     </script>
